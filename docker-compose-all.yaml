@@ -1,0 +1,105 @@
+version: '2'
+services:
+  shard-one-primary:
+    image: mongo
+    ports:
+      - 27018
+    networks: 
+      - mongo
+    container_name: shard-one
+    command: mongod --replSet shard-one --shardsvr
+    restart: on-failure
+  shard-one-secondary:
+    image: mongo
+    ports:
+      - 27018
+    networks: 
+      - mongo
+    container_name: shard-one-secondary
+    command: mongod --replSet shard-one --shardsvr
+    restart: on-failure
+  shard-one-secondary-two:
+    image: mongo
+    ports:
+      - 27018
+    networks: 
+      - mongo
+    container_name: shard-one-secondary-two
+    command: mongod --replSet shard-one --shardsvr
+    restart: on-failure
+  shard-two-primary:
+    image: mongo
+    ports:
+      - 27018
+    networks: 
+      - mongo
+    container_name: shard-two
+    command: mongod --replSet shard-two --shardsvr
+    restart: on-failure
+  shard-two-secondary:
+    image: mongo
+    ports:
+      - 27018
+    networks: 
+      - mongo
+    container_name: shard-two-secondary
+    command: mongod --replSet shard-two --shardsvr
+    restart: on-failure
+  shard-two-secondary-two:
+    image: mongo
+    ports:
+      - 27018
+    networks: 
+      - mongo
+    container_name: shard-two-secondary-two
+    command: mongod --replSet shard-two --shardsvr
+    restart: on-failure
+  config-primary:
+    image: mongo
+    ports:
+      - 27019
+    networks:
+      - mongo
+    container_name: configsvr
+    command: mongod --configsvr --replSet configsvr
+    restart: on-failure
+  config-secondary:
+    image: mongo
+    ports:
+      - 27019
+    networks:
+      - mongo
+    container_name: configsvr-secondary
+    command: mongod --configsvr --replSet configsvr
+    restart: on-failure
+  config-secondary-two:
+    image: mongo
+    ports:
+      - 27019
+    networks:
+      - mongo
+    container_name: configsvr-secondary-two
+    command: mongod --configsvr --replSet configsvr
+    restart: on-failure
+  mongos:
+    image: mongo
+    ports:
+      - 20000:27017
+    networks:
+      - mongo
+    container_name: mongos
+    command: mongos --configdb configsvr/configsvr:27019,configsvr-secondary:27019,configsvr-secondary-two:27019 --bind_ip_all
+    restart: on-failure
+    depends_on:
+      - shard-one-primary
+      - shard-one-secondary
+      - shard-one-secondary-two
+      - shard-two-primary
+      - shard-two-secondary
+      - shard-two-secondary-two
+      - config-primary
+      - config-secondary
+      - config-secondary-two
+networks:
+  mongo:
+    driver: bridge
